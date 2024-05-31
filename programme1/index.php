@@ -21,34 +21,58 @@ include_once("traitement/mois.php");
       <th>Taux</th>
     </tr>
     <?php
-    for ($i = 0; $i < count($produits); $i++) {
-      $smois = $produits[$i]["mois"];
-      $mois = $produits[$i]["mois"];
-      $mcdf = $produits[$i]["sommes"];
-      $musd = $produits[$i]["sommes"] / $produits[$i]["taux"];
-      if ($smois == $mois){ 
+    $smois = null;
+    $totalcdfMois = 0;
+    $totalusdMois = 0;
+    $grandTotalCDF = 0;
+    $grandTotalUSD = 0;
+    $taux = 0;
 
-        $totalcdf += $mcdf;
-        $totalusd += $musd;
+    while($produits = $requette->fetch()) {
+      $mois = $produits["mois"];
+      $mcdf = $produits["montant_cdf"];
+      $musd = $mcdf / $produits["taux"];
+      $taux = $produits["taux"];
+
+      if ($smois !== $mois) {
+        if ($smois !== null) {
     ?>
-        <tr>
-          <td><?= $name_mois[$mois - 1] ?></td>
-          <td><?= $mcdf; ?></td>
-          <td><?= $musd; ?></td>
-          <td><?= $produits[$i]["taux"]; ?></td>
+        <tr class="total-mois">
+          <td colspan="1"><?= $name_mois[$smois - 1]; ?></td>
+          <td colspan="1"><?= $totalcdfMois; ?></td>
+          <td colspan="1"><?= $totalusdMois; ?></td>
+          <td colspan="1"><?= $produits["taux"]; ?></td>
         </tr>
     <?php
-      } else { 
-        $totalcdf = 0;
-        $totalusd = 0;
+          $totalcdfMois = 0;
+          $totalusdMois = 0;
+        }
         $smois = $mois;
       }
+
+      $totalcdfMois += $mcdf;
+      $totalusdMois += $musd;
+
+      $grandTotalCDF += $mcdf;
+      $grandTotalUSD += $musd;
+
+    }
+
+    if ($smois !== null) {
+    ?>
+    <tr class="total-mois">
+      <td colspan="1"><?= $name_mois[$smois - 1]; ?></td>
+      <td colspan="1"><?= $totalcdfMois; ?></td>
+      <td colspan="1"><?= $totalusdMois; ?></td>
+      <td colspan="1"><?= $taux; ?></td>
+    </tr>
+    <?php
     }
     ?>
     <tr class="total">
-      <td colspan="1"></td>
-      <td colspan="1"><?= $totalcdf; ?></td>
-      <td colspan="1"><?= $totalusd; ?></td>
+      <td colspan="1">TOTAL</td>
+      <td colspan="1"><?= $grandTotalCDF; ?></td>
+      <td colspan="1"><?= $grandTotalUSD; ?></td>
       <td colspan="1"></td>
     </tr>
   </table>
